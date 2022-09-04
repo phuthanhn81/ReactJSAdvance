@@ -1,0 +1,31 @@
+overwrite: true
+watch: true
+schema:
+  - ${VITE_ECOMMERCE_ENDPOINT}:
+      headers:
+        x-hasura-admin-secret: ${VITE_ECOMMERCE_SECRET}
+generates:
+  src/sdk/sdk.ts:
+    documents: "src/**/*.{tsx,ts,graphql}"
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+    config:
+      skipTypename: false
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      avoidOptionals:
+        object: true
+        field: true
+        inputValue: false
+      scalars:
+        uuid: string
+        Date: string
+        jsonb: Record<string, any>
+        timestamptz: string
+        timestamp: string
+        numeric: number
+      namingConvention:
+        typeNames: change-case#pascalCase
