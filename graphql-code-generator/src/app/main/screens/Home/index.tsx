@@ -1,68 +1,134 @@
 import { Form, Input, Modal } from "antd";
 import { useForm } from "antd/lib/form/Form";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { gql } from "@apollo/client";
-import { GetListProductQuery, useGetListProductQuery } from "../../../../sdk/sdk";
+import {
+  DboProductInsertInput,
+  GetListProductQuery,
+  useGetListProductLazyQuery,
+  useGetListProductQuery,
+  useInsertProductMutation,
+} from "../../../../sdk/sdk";
 
 import { columns } from "./schema";
 
 import TableList from "../../../common/components/TableList";
+import { useAuth } from "../../../../contexts/AuthProvider";
 
 gql`
-    query GetProduct($id: Int!) {
-        dbo_Product(where: {ID: {_eq: $id}}) {
-            ID
-            Name
-            Price
-        }
+  query GetProduct($id: Int!) {
+    dbo_Product(where: { ID: { _eq: $id } }) {
+      ID
+      Name
+      Price
     }
+  }
 
-    query GetListProduct {
-        dbo_Product {
-            ID
-            Name
-            Price
-        }
+  query GetListProduct {
+    dbo_Product {
+      ID
+      Name
+      Price
     }
+  }
+
+  mutation InsertProduct($data: dbo_Product_insert_input!) {
+    insert_dbo_Product(objects: [$data]) {
+      returning {
+        ID
+      }
+    }
+  }
 `;
 
 export default function Home() {
-    const { data } = useGetListProductQuery();
+  const { useSdkLazyQuery, useSdkMutation } = useAuth();
 
-    const [showCreateProductModal, setShowCreateProductModal] = useState<boolean>(false);
-    const [form] = useForm();
+  const { data } = useGetListProductQuery();
+  // C1
+  // const [getListProduct, { loading, data: products }] = useSdkLazyQuery(
+  //   useGetListProductLazyQuery,
+  //   { fetchPolicy: "no-cache" }
+  // );
 
-    const createProductModal = () => (
-        <Modal
-            title="Tạo sản phẩm"
-            visible={showCreateProductModal}
-            onCancel={() => setShowCreateProductModal(false)}
-        >
-            <Form form={form}>
-                <Form.Item name="id" label="ID" labelCol={{ span: 24 }}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name="name" label="Tên sản phẩm" labelCol={{ span: 24 }}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name="price" label="Giá" labelCol={{ span: 24 }}>
-                    <Input />
-                </Form.Item>
-            </Form>
-        </Modal>
-    );
+  const [insertProductMutation] = useSdkMutation(useInsertProductMutation);
 
-    return (
-        <>
-            <TableList
-                title="Danh sách sản phẩm"
-                data={data?.dbo_Product}
-                columns={columns}
-                rowKey={"ID" as keyof GetListProductQuery["dbo_Product"][number]}
-                create={{ title: "Sản phẩm", onCreate: () => setShowCreateProductModal(true) }}
-            />
-            {createProductModal()}
-        </>
-    )
+  const [showCreateProductModal, setShowCreateProductModal] =
+    useState<boolean>(false);
+  const [form] = useForm();
+
+  const InsertProduct = () => {
+    let data: DboProductInsertInput = {
+      ID: form.getFieldValue("id"),
+      Name: form.getFieldValue("name"),
+      Price: form.getFieldValue("price"),
+    };
+
+    insertProductMutation({
+      variables: {
+        data,
+      },
+      // name from gql
+      refetchQueries: ["GetListProduct"],
+      onCompleted(response) {
+        // getListProduct(); -> no effect
+        console.log(response?.insert_dbo_Product?.returning[0].ID);
+      },
+      onError(error) {
+        console.log(error);
+      },
+    })
+      .then((response) => {
+        // C1
+        // getListProduct();
+        // console.log(response.data?.insert_dbo_Product?.returning[0].ID);
+      })
+      .catch((error) => {
+        // C1
+        // console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    // C1
+    // getListProduct();
+  }, []);
+
+  const createProductModal = () => (
+    <Modal
+      title="Tạo sản phẩm"
+      visible={showCreateProductModal}
+      onCancel={() => setShowCreateProductModal(false)}
+      onOk={() => InsertProduct()}
+    >
+      <Form form={form}>
+        <Form.Item name="id" label="ID" labelCol={{ span: 24 }}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="name" label="Tên sản phẩm" labelCol={{ span: 24 }}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="price" label="Giá" labelCol={{ span: 24 }}>
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+
+  return (
+    <>
+      <TableList
+        title="Danh sách sản phẩm"
+        data={data?.dbo_Product}
+        columns={columns}
+        rowKey={"ID" as keyof GetListProductQuery["dbo_Product"][number]}
+        create={{
+          title: "Sản phẩm",
+          onCreate: () => setShowCreateProductModal(true),
+        }}
+      />
+      {createProductModal()}
+    </>
+  );
 }

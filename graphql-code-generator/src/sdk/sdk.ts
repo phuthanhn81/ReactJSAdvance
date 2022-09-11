@@ -422,6 +422,13 @@ export type GetListProductQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetListProductQuery = { __typename?: 'query_root', dbo_Product: Array<{ __typename?: 'dbo_Product', ID: number, Name: string | null, Price: number | null }> };
 
+export type InsertProductMutationVariables = Exact<{
+  data: DboProductInsertInput;
+}>;
+
+
+export type InsertProductMutation = { __typename?: 'mutation_root', insert_dbo_Product: { __typename?: 'dbo_Product_mutation_response', returning: Array<{ __typename?: 'dbo_Product', ID: number }> } | null };
+
 
 export const GetProductDocument = gql`
     query GetProduct($id: Int!) {
@@ -496,3 +503,38 @@ export function useGetListProductLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type GetListProductQueryHookResult = ReturnType<typeof useGetListProductQuery>;
 export type GetListProductLazyQueryHookResult = ReturnType<typeof useGetListProductLazyQuery>;
 export type GetListProductQueryResult = Apollo.QueryResult<GetListProductQuery, GetListProductQueryVariables>;
+export const InsertProductDocument = gql`
+    mutation InsertProduct($data: dbo_Product_insert_input!) {
+  insert_dbo_Product(objects: [$data]) {
+    returning {
+      ID
+    }
+  }
+}
+    `;
+export type InsertProductMutationFn = Apollo.MutationFunction<InsertProductMutation, InsertProductMutationVariables>;
+
+/**
+ * __useInsertProductMutation__
+ *
+ * To run a mutation, you first call `useInsertProductMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useInsertProductMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [insertProductMutation, { data, loading, error }] = useInsertProductMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useInsertProductMutation(baseOptions?: Apollo.MutationHookOptions<InsertProductMutation, InsertProductMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<InsertProductMutation, InsertProductMutationVariables>(InsertProductDocument, options);
+      }
+export type InsertProductMutationHookResult = ReturnType<typeof useInsertProductMutation>;
+export type InsertProductMutationResult = Apollo.MutationResult<InsertProductMutation>;
+export type InsertProductMutationOptions = Apollo.BaseMutationOptions<InsertProductMutation, InsertProductMutationVariables>;

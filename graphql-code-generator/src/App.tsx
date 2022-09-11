@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
-import { ApolloClient, ApolloProvider, NormalizedCacheObject } from "@apollo/client";
+import {
+  ApolloClient,
+  NormalizedCacheObject,
+  ApolloProvider,
+} from "@apollo/client";
 
 import createApolloClient from "./app/services/appoloClientServices";
 
+import { AuthProvider } from "./contexts/AuthProvider";
 import Home from "./app/main/screens/Home";
 
 function App() {
@@ -15,14 +20,13 @@ function App() {
     init();
   }, []);
 
-  if (!client)
-    return (
-      <div>client not found</div>
-    );
+  if (!client) return <div>client not found</div>;
 
   return (
     <ApolloProvider client={client}>
-      <Home />
+      <AuthProvider>
+        <Home />
+      </AuthProvider>
     </ApolloProvider>
   );
 }
