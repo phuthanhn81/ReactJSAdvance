@@ -1,11 +1,12 @@
 import { Space, Table, TableColumnsType, TableProps, Tooltip } from 'antd';
 import ButtonColor from "antd-button-color";
-import { PlusOutlined } from "@ant-design/icons";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { GetRowKey } from 'antd/lib/table/interface';
 
 import 'antd/dist/antd.css';
 import styles from "./TableList.module.css";
+import { useState } from 'react';
 
 interface ITableListProps<RecordType extends object = any> extends Omit<TableProps<RecordType>, "title" | "schema"> {
     title?: string;
@@ -17,13 +18,30 @@ interface ITableListProps<RecordType extends object = any> extends Omit<TablePro
         title?: string;
         onCreate: () => void;
     };
+    remove?: {
+        title?: string;
+        onDelete: () => void;
+    };
+
+    select?: {
+        selectedRow: number[];
+        setSelectedRow: ([]) => void;
+    }
 }
 
 export default function TableList<RecordType extends object = any>(props: ITableListProps<RecordType>) {
-    const { title, data, columns, rowKey, create } = props;
+    const { title, data, columns, rowKey, create, remove, select } = props;
 
     let onCreateTitle = create?.title ?? undefined;
     let onCreate = create?.onCreate ?? undefined;
+
+    let onDeleteTitle = remove?.title ?? undefined;
+    let onDelete = remove?.onDelete ?? undefined;
+
+    let selectedRow = select?.selectedRow ?? undefined;
+    let setSelectedRow = select?.setSelectedRow ?? undefined;
+
+    const [chon, setChon] = useState([]);
 
     const renderTitle = () => (
         <Space className={[styles.tableListTitleContainer].join("")}>
@@ -37,8 +55,25 @@ export default function TableList<RecordType extends object = any>(props: ITable
                     </Tooltip>
                 )}
             </Space>
+            <Space>
+                {onDeleteTitle && (
+                    <Tooltip title={`Xóa ${onDeleteTitle}`}>
+                        <ButtonColor icon={<MinusOutlined />} size={"middle"} type={"success"} onClick={onDelete}>
+                            {onDeleteTitle || ""}
+                        </ButtonColor>
+                    </Tooltip>
+                )}
+            </Space>
         </Space>
     );
+
+    const rowSelection = {
+        onChange: (selected: any) => {
+            if (!setSelectedRow) return;
+            console.log(selected);
+
+        },
+    };
 
     return (
         <Table<RecordType>
@@ -46,6 +81,7 @@ export default function TableList<RecordType extends object = any>(props: ITable
             rowKey={rowKey || "ID"}
             dataSource={data}
             columns={columns}
+            rowSelection={onDeleteTitle ? rowSelection : undefined}
         />
     )
 }
