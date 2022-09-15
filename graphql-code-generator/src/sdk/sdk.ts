@@ -430,7 +430,7 @@ export type InsertProductMutationVariables = Exact<{
 export type InsertProductMutation = { __typename?: 'mutation_root', insert_dbo_Product: { __typename?: 'dbo_Product_mutation_response', returning: Array<{ __typename?: 'dbo_Product', ID: number }> } | null };
 
 export type DeleteProductMutationVariables = Exact<{
-  id: Scalars['Int'];
+  ids: Array<Scalars['Int']> | Scalars['Int'];
 }>;
 
 
@@ -546,8 +546,8 @@ export type InsertProductMutationHookResult = ReturnType<typeof useInsertProduct
 export type InsertProductMutationResult = Apollo.MutationResult<InsertProductMutation>;
 export type InsertProductMutationOptions = Apollo.BaseMutationOptions<InsertProductMutation, InsertProductMutationVariables>;
 export const DeleteProductDocument = gql`
-    mutation DeleteProduct($id: Int!) {
-  delete_dbo_Product(where: {ID: {_eq: $id}}) {
+    mutation DeleteProduct($ids: [Int!]!) {
+  delete_dbo_Product(where: {ID: {_in: $ids}}) {
     returning {
       ID
     }
@@ -569,7 +569,7 @@ export type DeleteProductMutationFn = Apollo.MutationFunction<DeleteProductMutat
  * @example
  * const [deleteProductMutation, { data, loading, error }] = useDeleteProductMutation({
  *   variables: {
- *      id: // value for 'id'
+ *      ids: // value for 'ids'
  *   },
  * });
  */
