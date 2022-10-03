@@ -18,6 +18,7 @@ interface ITableListProps<RecordType extends object = any>
     title?: string;
     onCreate: () => void;
   };
+  update?: (record: RecordType) => void;
   remove?: {
     title?: string;
     onDelete: () => void;
@@ -31,7 +32,7 @@ interface ITableListProps<RecordType extends object = any>
 export default function TableList<RecordType extends object = any>(
   props: ITableListProps<RecordType>
 ) {
-  const { title, data, columns, rowKey, create, remove, select } = props;
+  const { title, data, columns, rowKey, create, update, remove, select } = props;
 
   let onCreateTitle = create?.title ?? undefined;
   let onCreate = create?.onCreate ?? undefined;
@@ -89,6 +90,9 @@ export default function TableList<RecordType extends object = any>(
       dataSource={data}
       columns={columns}
       rowSelection={onDeleteTitle ? rowSelection : undefined}
+      onRow={(record) => ({
+        onClick: () => update?.(record),
+      })}
     />
   );
 }

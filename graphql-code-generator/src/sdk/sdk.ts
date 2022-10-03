@@ -429,6 +429,14 @@ export type InsertProductMutationVariables = Exact<{
 
 export type InsertProductMutation = { __typename?: 'mutation_root', insert_dbo_Product: { __typename?: 'dbo_Product_mutation_response', returning: Array<{ __typename?: 'dbo_Product', ID: number }> } | null };
 
+export type UpdateProductMutationVariables = Exact<{
+  id: Scalars['Int'];
+  data?: InputMaybe<DboProductSetInput>;
+}>;
+
+
+export type UpdateProductMutation = { __typename?: 'mutation_root', update_dbo_Product: { __typename?: 'dbo_Product_mutation_response', returning: Array<{ __typename?: 'dbo_Product', ID: number }> } | null };
+
 export type DeleteProductMutationVariables = Exact<{
   ids: Array<Scalars['Int']> | Scalars['Int'];
 }>;
@@ -545,6 +553,42 @@ export function useInsertProductMutation(baseOptions?: Apollo.MutationHookOption
 export type InsertProductMutationHookResult = ReturnType<typeof useInsertProductMutation>;
 export type InsertProductMutationResult = Apollo.MutationResult<InsertProductMutation>;
 export type InsertProductMutationOptions = Apollo.BaseMutationOptions<InsertProductMutation, InsertProductMutationVariables>;
+export const UpdateProductDocument = gql`
+    mutation UpdateProduct($id: Int!, $data: dbo_Product_set_input = {}) {
+  update_dbo_Product(where: {ID: {_eq: $id}}, _set: $data) {
+    returning {
+      ID
+    }
+  }
+}
+    `;
+export type UpdateProductMutationFn = Apollo.MutationFunction<UpdateProductMutation, UpdateProductMutationVariables>;
+
+/**
+ * __useUpdateProductMutation__
+ *
+ * To run a mutation, you first call `useUpdateProductMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProductMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProductMutation, { data, loading, error }] = useUpdateProductMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateProductMutation(baseOptions?: Apollo.MutationHookOptions<UpdateProductMutation, UpdateProductMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateProductMutation, UpdateProductMutationVariables>(UpdateProductDocument, options);
+      }
+export type UpdateProductMutationHookResult = ReturnType<typeof useUpdateProductMutation>;
+export type UpdateProductMutationResult = Apollo.MutationResult<UpdateProductMutation>;
+export type UpdateProductMutationOptions = Apollo.BaseMutationOptions<UpdateProductMutation, UpdateProductMutationVariables>;
 export const DeleteProductDocument = gql`
     mutation DeleteProduct($ids: [Int!]!) {
   delete_dbo_Product(where: {ID: {_in: $ids}}) {
