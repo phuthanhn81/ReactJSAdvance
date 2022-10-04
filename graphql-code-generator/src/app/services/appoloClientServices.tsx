@@ -6,9 +6,9 @@ const createApolloClient = () => {
     return new ApolloClient({
         link: from([
             new HttpLink({
-                uri: "http://localhost:8080/v1/graphql",
+                uri: import.meta.env.VITE_ECOMMERCE_ENDPOINT,
                 headers: {
-                    "x-hasura-admin-secret": "1"
+                    "x-hasura-admin-secret": import.meta.env.VITE_ECOMMERCE_SECRET
                 }
             }),
         ]),
